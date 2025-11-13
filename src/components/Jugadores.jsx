@@ -1,10 +1,16 @@
 import React from 'react'
 
-export default function Jugadores() {
+export default function Jugadores({perfilActivo, setPerfilActivo}) {
+
+    const handlePerfilClick = (perfil) => {
+        setPerfilActivo(perfil);
+    };
+
+
   return (
     <div className="player-list">
       
-      <div className="player-entry">
+      <div className="player-entry" onClick={() => handlePerfilClick(1)}>
           <div>
               <img className="player-ping" src='/src/assets/FaceRubius.svg'/>
           </div>
@@ -14,11 +20,11 @@ export default function Jugadores() {
           </div>
 
           <div>
-              <img className="player-ping" src='/src/assets/Ping.png'/>
+              <img className="player-ping" src={perfilActivo === 1 ? '/src/assets/PingFull.png' : '/src/assets/Ping.png'}/>
           </div>
       </div>
 
-      <div className="player-entry">
+      <div className="player-entry" onClick={() => handlePerfilClick(2)}>
           <div>
               <img className="player-ping" src='/src/assets/FaceVeggeta777.jpg'/>
           </div>
@@ -26,7 +32,7 @@ export default function Jugadores() {
               Perfil 2
           </div>
           <div>
-              <img className="player-ping" src='/src/assets/PingFull.png'/>
+              <img className="player-ping" src={perfilActivo === 1 ? '/src/assets/Ping.png' : '/src/assets/PingFull.png'}/>
           </div>
       </div>
 

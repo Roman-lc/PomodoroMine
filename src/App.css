@@ -43,6 +43,7 @@
 
   padding: 0;
   margin: 0;
+  margin-bottom: 7px;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -93,12 +94,7 @@ personas {
 }
 
 
-.reloj {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 500%;
-}
+
 
 .nombreItemAltura {
   display: flex;
@@ -266,4 +262,16 @@ opciones {
   align-items: center;
   margin-right: 20px;
 
+}
+
+
+.perfil {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.tituloPerfil {
+  margin-right: 50px;
 }
