@@ -9,18 +9,19 @@ function App() {
   // Esto es del Reloj
   const [time, setTime] = useState(200)
   const [isRunning, setIsRunning] = useState(false);
+  const [isPomodoro, setIsPomodoro] = useState(true);
 
   function toggleRunning() {
     setIsRunning(prevIsRunning => !prevIsRunning);
   }
 
   function resetTime() {
-    setTime(1200)
+    setTime(5)
   }
 
   //perfiles etc
-  const [tiempoPodoro, setTiempoPodoro] = useState(1500);
-  const [tiempoRecreo, setTiempoRecreo] = useState(600);
+  const [tiempoPodoro, setTiempoPodoro] = useState(20);
+  const [tiempoRecreo, setTiempoRecreo] = useState(10);
 
   // Esto es del menu de opciones
   const [estaAbierto, setEstaAbierto] = useState(false);
@@ -64,21 +65,28 @@ function App() {
 
   }, [cuadro]);
 
+  // ...existing code...
   //El tiempo baja uno por segundo, 
   useEffect(() => {
-    let intervalId = null;
-    if (isRunning && time > 0) {
-      intervalId = setInterval(() => {
-        setTime(prevTime => prevTime - 1);
-      }, 1000);
-    }
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+    // Si llega a 0, cambiar modo y ajustar tiempo (no dentro del intervalo)
+    if (time === 0) {
+      if (isPomodoro) {
+        setTime(tiempoRecreo);
+      } else {
+        setTime(tiempoPodoro);
       }
-    };
-  }, [time, isRunning]);
+      setIsPomodoro(prev => !prev);
+      return;
+    }
 
+    if (!isRunning) return;
+
+    const intervalId = setInterval(() => {
+      setTime(prevTime => prevTime - 1);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [time, isRunning, isPomodoro, tiempoPodoro, tiempoRecreo]);
 
   return (
     <>
