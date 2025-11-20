@@ -13,38 +13,60 @@ function App() {
     setIsRunning((prevIsRunning) => !prevIsRunning);
   }
 
+  const obtenerGuardado = (clave, valorInicial) => {
+  const guardado = localStorage.getItem(clave);
+  if (guardado) {
+    return JSON.parse(guardado);
+  }
+  return valorInicial;
+};
+
   function resetTime() {
     setTime(5);
   }
 
   //perfiles etc
+
+  const [perfilActivo, setPerfilActivo] = useState(() => obtenerGuardado("perfilActivo", 1));
+
+  const [pomodoroPerfil1, setPomodoroPerfil1] = useState(() => obtenerGuardado("pomodoroPerfil1", 25));
+  const [recreoPerfil1, setRecreoPerfil1] = useState(() => obtenerGuardado("recreoPerfil1", 5));
+
+  const [pomodoroPerfil2, setPomodoroPerfil2] = useState(() => obtenerGuardado("pomodoroPerfil2", 50));
+  const [recreoPerfil2, setRecreoPerfil2] = useState(() => obtenerGuardado("recreoPerfil2", 10));
+
   const [tiempoPodoro, setTiempoPodoro] = useState(20);
   const [tiempoRecreo, setTiempoRecreo] = useState(10);
 
-  const [perfilActivo, setPerfilActivo] = useState(1);
+  useEffect(() => {
+    localStorage.setItem("perfilActivo", JSON.stringify(perfilActivo));
+    localStorage.setItem("pomodoroPerfil1", JSON.stringify(pomodoroPerfil1));
+    localStorage.setItem("recreoPerfil1", JSON.stringify(recreoPerfil1));
+    localStorage.setItem("pomodoroPerfil2", JSON.stringify(pomodoroPerfil2));
+    localStorage.setItem("recreoPerfil2", JSON.stringify(recreoPerfil2));
+  }, [perfilActivo, pomodoroPerfil1, recreoPerfil1, pomodoroPerfil2, recreoPerfil2]);
 
-  const [pomodoroPerfil1, setPomodoroPerfil1] = useState(25);
-  const [recreoPerfil1, setRecreoPerfil1] = useState(5);
-
-  const [pomodoroPerfil2, setPomodoroPerfil2] = useState(50);
-  const [recreoPerfil2, setRecreoPerfil2] = useState(10);
 
   const cambiarPerfil = () => {
     setPerfilActivo((prev) => (prev === 1 ? 2 : 1));
   };
 
   const guardarCambios = () => {
+    let nuevoTiempo;
     if (perfilActivo === 1) {
       setTiempoPodoro(pomodoroPerfil1);
       setTiempoRecreo(recreoPerfil1);
-    }
-    else {
+      nuevoTiempo = pomodoroPerfil1;
+    } else {
       setTiempoPodoro(pomodoroPerfil2);
       setTiempoRecreo(recreoPerfil2);
+      nuevoTiempo = pomodoroPerfil2;
     }
     setIsPomodoro(true);
-    setTime(tiempoPodoro);
-  }
+    // Importante: Asumo que tu lógica de reloj cuenta segundos, pero tus inputs son minutos.
+    // Si es así, recuerda multiplicar por 60 aquí si es necesario.
+    setTime(nuevoTiempo); 
+  };
 
   // Esto es del menu de opciones
   const [estaAbierto, setEstaAbierto] = useState(false);
@@ -125,11 +147,12 @@ function App() {
             <div>
               <div className="perfil">
                 <div className="tituloPerfil">Perfil 1:</div>
-                Pomodoro:
-                <button
+                Pomodoro: 
+                <img src='/src/assets/FlechaActiva.png' style={{minHeight: '40px', cursor: 'pointer'}}
                   onClick={() => {
                     setPomodoroPerfil1((prevTime) => Math.max(1, prevTime - 1));
-                  }}>-1</button>
+                  }}>
+                  </img>
                 <div>{pomodoroPerfil1}</div>
                 <button 
                 onClick={() => {
