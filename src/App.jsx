@@ -4,8 +4,15 @@ import Jugadores from "./components/Jugadores";
 import Reloj from "./components/Reloj";
 
 function App() {
+
+  const obtenerGuardado = (clave, valorInicial) => {
+    const guardado = localStorage.getItem(clave);
+    if (guardado) {
+      return JSON.parse(guardado);
+    }
+    return valorInicial;
+  };
   // Esto es del Reloj
-  const [time, setTime] = useState(200);
   const [isRunning, setIsRunning] = useState(false);
   const [isPomodoro, setIsPomodoro] = useState(true);
 
@@ -13,17 +20,11 @@ function App() {
     setIsRunning((prevIsRunning) => !prevIsRunning);
   }
 
-  const obtenerGuardado = (clave, valorInicial) => {
-  const guardado = localStorage.getItem(clave);
-  if (guardado) {
-    return JSON.parse(guardado);
-  }
-  return valorInicial;
-};
-
   function resetTime() {
-    setTime(5);
-  }
+  setIsRunning(false); // Pause timer
+  // Reset to the current configured limit based on mode
+  setTime(isPomodoro ? tiempoPodoro * 60 : tiempoRecreo * 60);
+}
 
   //perfiles etc
 
@@ -35,8 +36,23 @@ function App() {
   const [pomodoroPerfil2, setPomodoroPerfil2] = useState(() => obtenerGuardado("pomodoroPerfil2", 50));
   const [recreoPerfil2, setRecreoPerfil2] = useState(() => obtenerGuardado("recreoPerfil2", 10));
 
-  const [tiempoPodoro, setTiempoPodoro] = useState(20);
-  const [tiempoRecreo, setTiempoRecreo] = useState(10);
+  const [pp1, setPp1] = useState(0);
+  const [pp2, setPp2] = useState(0);
+  const [rp1, setRp1] = useState(0);
+  const [rp2, setRp2] = useState(0);
+
+  const [tiempoPodoro, setTiempoPodoro] = useState(() => {
+    return perfilActivo === 1 ? pomodoroPerfil1 : pomodoroPerfil2;
+  });
+
+  const [tiempoRecreo, setTiempoRecreo] = useState(() => {
+    return perfilActivo === 1 ? recreoPerfil1 : recreoPerfil2;
+  });
+
+  const [time, setTime] = useState(() => {
+    const minutosIniciales = perfilActivo === 1 ? pomodoroPerfil1 : pomodoroPerfil2;
+    return minutosIniciales * 60; 
+  });
 
   useEffect(() => {
     localStorage.setItem("perfilActivo", JSON.stringify(perfilActivo));
@@ -46,32 +62,80 @@ function App() {
     localStorage.setItem("recreoPerfil2", JSON.stringify(recreoPerfil2));
   }, [perfilActivo, pomodoroPerfil1, recreoPerfil1, pomodoroPerfil2, recreoPerfil2]);
 
+  // Este efecto se ejecuta automáticamente cada vez que cambia el perfilActivo
+  // o si cambias la configuración de tiempos de los perfiles.
+  useEffect(() => {
+    let nuevoTiempoTrabajo;
+    let nuevoTiempoRecreo;
+
+    // 1. Detectar qué tiempos usar
+    if (perfilActivo === 1) {
+      nuevoTiempoTrabajo = pomodoroPerfil1;
+      nuevoTiempoRecreo = recreoPerfil1;
+    } else {
+      nuevoTiempoTrabajo = pomodoroPerfil2;
+      nuevoTiempoRecreo = recreoPerfil2;
+    }
+
+    // 2. Actualizar los estados de referencia
+    setTiempoPodoro(nuevoTiempoTrabajo);
+    setTiempoRecreo(nuevoTiempoRecreo);
+
+    // 3. Resetear el reloj principal
+    setIsRunning(false); // Pausar el reloj
+    setIsPomodoro(true); // Volver al modo Pomodoro
+    setTime(nuevoTiempoTrabajo * 60); // IMPORTANTE: Convertir minutos a segundos
+
+  }, [perfilActivo, pomodoroPerfil1, recreoPerfil1, pomodoroPerfil2, recreoPerfil2]);
+
 
   const cambiarPerfil = () => {
     setPerfilActivo((prev) => (prev === 1 ? 2 : 1));
   };
 
   const guardarCambios = () => {
-    let nuevoTiempo;
+    // 1. Actualizamos los estados "Reales" con lo que hay en los "Temporales"
+    setPomodoroPerfil1(pp1);
+    setRecreoPerfil1(rp1);
+    setPomodoroPerfil2(pp2);
+    setRecreoPerfil2(rp2);
+
+    // 2. Calculamos el nuevo tiempo para el reloj según el perfil activo
+    let nuevoTiempoTrabajo;
+    let nuevoTiempoRecreo;
+
     if (perfilActivo === 1) {
-      setTiempoPodoro(pomodoroPerfil1);
-      setTiempoRecreo(recreoPerfil1);
-      nuevoTiempo = pomodoroPerfil1;
+      // Usamos las variables temporales (pp1/rp1) porque las reales 
+      // tardan un render en actualizarse
+      nuevoTiempoTrabajo = pp1; 
+      nuevoTiempoRecreo = rp1;
     } else {
-      setTiempoPodoro(pomodoroPerfil2);
-      setTiempoRecreo(recreoPerfil2);
-      nuevoTiempo = pomodoroPerfil2;
+      nuevoTiempoTrabajo = pp2;
+      nuevoTiempoRecreo = rp2;
     }
-    setIsPomodoro(true);
-    // Importante: Asumo que tu lógica de reloj cuenta segundos, pero tus inputs son minutos.
-    // Si es así, recuerda multiplicar por 60 aquí si es necesario.
-    setTime(nuevoTiempo); 
+
+    // 3. Actualizamos los tiempos de referencia del reloj
+    setTiempoPodoro(nuevoTiempoTrabajo);
+    setTiempoRecreo(nuevoTiempoRecreo);
+
+    // 4. Reseteamos y cerramos
+    setIsPomodoro(true); 
+    setIsRunning(false); 
+    setTime(nuevoTiempoTrabajo * 60); 
+    
+    setEstaAbierto(false); // Cerramos el menú automáticamente al guardar
   };
 
   // Esto es del menu de opciones
   const [estaAbierto, setEstaAbierto] = useState(false);
 
   const alternarMenu = () => {
+    if (!estaAbierto) {
+      setPp1(pomodoroPerfil1);
+      setRp1(recreoPerfil1);
+      setPp2(pomodoroPerfil2);
+      setRp2(recreoPerfil2);
+      }
     setEstaAbierto(!estaAbierto);
   };
 
@@ -93,15 +157,20 @@ function App() {
   };
 
   //Esto es del item cuadro
-  const [cuadro, setCuadro] = useState(1);
+  const [cuadro, setCuadro] = useState(() => obtenerGuardado("cuadro", 1));
+
   const alterarCuadro = () => {
-    setCuadro((prevcuadro) => prevcuadro + 1);
-    if (cuadro == 5) {
-      setCuadro(1);
-    }
+    setCuadro((prevCuadro) => {
+        if (prevCuadro >= 5) {
+          return 1;
+        } else {
+          return prevCuadro + 1;
+      }
+    });
   };
 
   useEffect(() => {
+    localStorage.setItem("cuadro", JSON.stringify(cuadro));
     const claseFondo = `fondo-${cuadro}`;
     for (let i = 1; i <= 5; i++) {
       document.body.classList.remove(`fondo-${i}`);
@@ -114,9 +183,9 @@ function App() {
     // Si llega a 0, cambiar modo y ajustar tiempo (no dentro del intervalo)
     if (time === 0) {
       if (isPomodoro) {
-        setTime(tiempoRecreo);
+        setTime(tiempoRecreo * 60);
       } else {
-        setTime(tiempoPodoro);
+        setTime(tiempoPodoro * 60);
       }
       setIsPomodoro((prev) => !prev);
       return;
@@ -150,22 +219,22 @@ function App() {
                 Pomodoro: 
                 <img src='/src/assets/FlechaActiva.png' style={{minHeight: '40px', cursor: 'pointer'}}
                   onClick={() => {
-                    setPomodoroPerfil1((prevTime) => Math.max(1, prevTime - 1));
+                    setPp1((prevTime) => Math.max(1, prevTime - 1));
                   }}>
                   </img>
-                <div>{pomodoroPerfil1}</div>
+                <div>{pp1}</div>
                 <button 
                 onClick={() => {
-                    setPomodoroPerfil1((prevTime) => prevTime + 1);
+                    setPp1((prevTime) => prevTime + 1);
                   }}>+1</button>
                 Recreo:
                 <button onClick={() => {
-                    setRecreoPerfil1((prevTime) => Math.max(1, prevTime - 1));
+                    setRp1((prevTime) => Math.max(1, prevTime - 1));
                   }}>-1</button>
-                <div>{recreoPerfil1}</div>
+                <div>{rp1}</div>
                 <button
                 onClick={() => {
-                    setRecreoPerfil1((prevTime) => prevTime + 1);
+                    setRp1((prevTime) => prevTime + 1);
                   }}>+1</button>
               </div>
 
@@ -174,15 +243,15 @@ function App() {
                 Pomodoro:
                 <button
                   onClick={() => {
-                    setPomodoroPerfil2((prevTime) => Math.max(1, prevTime - 1));
+                    setPp2((prevTime) => Math.max(1, prevTime - 1));
                   }}
                 >
                   -1
                 </button>
-                <div>{pomodoroPerfil2}</div>
+                <div>{pp2}</div>
                 <button
                   onClick={() => {
-                    setPomodoroPerfil2((prevTime) => prevTime + 1);
+                    setPp2((prevTime) => prevTime + 1);
                   }}
                 >
                   +1
@@ -190,15 +259,15 @@ function App() {
                 Recreo:
                 <button
                   onClick={() => {
-                    setRecreoPerfil2((prevTime) => Math.max(1, prevTime - 1));
+                    setRp2((prevTime) => Math.max(1, prevTime - 1));
                   }}
                 >
                   -1
                 </button>
-                <div>{recreoPerfil2}</div>
+                <div>{rp2}</div>
                 <button
                   onClick={() => {
-                    setRecreoPerfil2((prevTime) => prevTime + 1);
+                    setRp2((prevTime) => prevTime + 1);
                   }}
                 >
                   +1
