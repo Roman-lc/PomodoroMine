@@ -2,6 +2,7 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import Jugadores from "./components/Jugadores";
 import Reloj from "./components/Reloj";
+import XpTime from "./components/XpTime";
 
 function App() {
 
@@ -304,34 +305,7 @@ function App() {
           >
             {itemActual}
           </div>
-          <div class="xp-bar-container" id="xp-bar">
-            <div class="xp-segment">
-              <div class="xp-segment-fill"></div>
-            </div>
-            <div class="xp-segment">
-              <div class="xp-segment-fill"></div>
-            </div>
-            <div class="xp-segment">
-              <div class="xp-segment-fill"></div>
-            </div>
-            <div class="xp-segment">
-              <div class="xp-segment-fill"></div>
-            </div>
-            <div class="xp-segment">
-              <div class="xp-segment-fill"></div>
-            </div>
-            <div class="xp-segment">
-              <div class="xp-segment-fill"></div>
-            </div>
-            <div class="xp-segment">
-              <div class="xp-segment-fill"></div>
-            </div>
-            <div class="xp-segment">
-              <div class="xp-segment-fill"></div>
-            </div>
-            <div class="xp-segment"></div>
-            <div class="xp-segment"></div>
-          </div>
+          <XpTime tiempoRestante={time} tiempoTotalPomodoro={tiempoPodoro} tiempoTotalRecreo={tiempoRecreo} isPomodoro={isPomodoro}></XpTime>
         </barraTiempo>
 
         <menu className="ladrillo">
