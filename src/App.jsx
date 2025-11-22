@@ -3,6 +3,39 @@ import { useState, useEffect } from "react";
 import Jugadores from "./components/Jugadores";
 import Reloj from "./components/Reloj";
 import XpTime from "./components/XpTime";
+import Reproductor from "./components/Reproductor";
+
+const BotonFlecha = ({ onClick, esIncrementar, deshabilitado }) => {
+  const [hover, setHover] = useState(false);
+
+  const getSrc = () => {
+    if (deshabilitado) return "/src/assets/FlechaNoActiva.png";
+    if (hover) return "/src/assets/FlechaHolder.png";
+    return "/src/assets/FlechaActiva.png";
+  };
+
+  const getRotation = () => {
+    if (deshabilitado) {
+      return esIncrementar ? "0deg" : "180deg";
+    } else {
+      return esIncrementar ? "180deg" : "0deg";
+    }
+  };
+
+  return (
+    <img
+      src={getSrc()}
+      className="flecha"
+      onClick={() => !deshabilitado && onClick()}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        cursor: deshabilitado ? "default" : "pointer",
+        transform: `rotate(${getRotation()})`
+      }}
+    />
+  );
+};
 
 function App() {
 
@@ -22,10 +55,9 @@ function App() {
   }
 
   function resetTime() {
-  setIsRunning(false); // Pause timer
-  // Reset to the current configured limit based on mode
-  setTime(isPomodoro ? tiempoPodoro * 60 : tiempoRecreo * 60);
-}
+    setIsRunning(false); 
+    setTime(isPomodoro ? tiempoPodoro * 60 : tiempoRecreo * 60);
+  }
 
   //perfiles etc
 
@@ -52,7 +84,7 @@ function App() {
 
   const [time, setTime] = useState(() => {
     const minutosIniciales = perfilActivo === 1 ? pomodoroPerfil1 : pomodoroPerfil2;
-    return minutosIniciales * 60; 
+    return minutosIniciales * 60;
   });
 
   useEffect(() => {
@@ -90,9 +122,12 @@ function App() {
   }, [perfilActivo, pomodoroPerfil1, recreoPerfil1, pomodoroPerfil2, recreoPerfil2]);
 
 
-  const cambiarPerfil = () => {
-    setPerfilActivo((prev) => (prev === 1 ? 2 : 1));
-  };
+  const ajustarTiempoActual = (minutos) => {
+  setTime((prevTime) => {
+    const nuevoTiempo = prevTime + (minutos * 60);
+    return nuevoTiempo > 0 ? nuevoTiempo : 0; // Prevent negative time
+  });
+};
 
   const guardarCambios = () => {
     // 1. Actualizamos los estados "Reales" con lo que hay en los "Temporales"
@@ -108,7 +143,7 @@ function App() {
     if (perfilActivo === 1) {
       // Usamos las variables temporales (pp1/rp1) porque las reales 
       // tardan un render en actualizarse
-      nuevoTiempoTrabajo = pp1; 
+      nuevoTiempoTrabajo = pp1;
       nuevoTiempoRecreo = rp1;
     } else {
       nuevoTiempoTrabajo = pp2;
@@ -120,10 +155,10 @@ function App() {
     setTiempoRecreo(nuevoTiempoRecreo);
 
     // 4. Reseteamos y cerramos
-    setIsPomodoro(true); 
-    setIsRunning(false); 
-    setTime(nuevoTiempoTrabajo * 60); 
-    
+    setIsPomodoro(true);
+    setIsRunning(false);
+    setTime(nuevoTiempoTrabajo * 60);
+
     setEstaAbierto(false); // Cerramos el menú automáticamente al guardar
   };
 
@@ -136,7 +171,7 @@ function App() {
       setRp1(recreoPerfil1);
       setPp2(pomodoroPerfil2);
       setRp2(recreoPerfil2);
-      }
+    }
     setEstaAbierto(!estaAbierto);
   };
 
@@ -156,16 +191,17 @@ function App() {
   const alterarMusica = () => {
     setMusic(!music);
   };
+  
 
   //Esto es del item cuadro
   const [cuadro, setCuadro] = useState(() => obtenerGuardado("cuadro", 1));
 
   const alterarCuadro = () => {
     setCuadro((prevCuadro) => {
-        if (prevCuadro >= 5) {
-          return 1;
-        } else {
-          return prevCuadro + 1;
+      if (prevCuadro >= 5) {
+        return 1;
+      } else {
+        return prevCuadro + 1;
       }
     });
   };
@@ -203,6 +239,7 @@ function App() {
 
   return (
     <>
+      <Reproductor reproducir={music}></Reproductor>
       {estaAbierto && (
         <opciones>
           <div id="botonCierre">
@@ -217,72 +254,68 @@ function App() {
             <div>
               <div className="perfil">
                 <div className="tituloPerfil">Perfil 1:</div>
-                Pomodoro: 
-                <img src='/src/assets/FlechaActiva.png' style={{minHeight: '40px', cursor: 'pointer'}}
-                  onClick={() => {
-                    setPp1((prevTime) => Math.max(1, prevTime - 1));
-                  }}>
-                  </img>
+                Pomodoro:
+                <BotonFlecha
+                  esIncrementar={false}
+                  deshabilitado={pp1 <= 1}
+                  onClick={() => setPp1((prev) => Math.max(1, prev - 1))}
+                />
                 <div>{pp1}</div>
-                <button 
-                onClick={() => {
-                    setPp1((prevTime) => prevTime + 1);
-                  }}>+1</button>
+                <BotonFlecha
+                  esIncrementar={true}
+                  deshabilitado={false}
+                  onClick={() => setPp1((prev) => prev + 1)}
+                />
                 Recreo:
-                <button onClick={() => {
-                    setRp1((prevTime) => Math.max(1, prevTime - 1));
-                  }}>-1</button>
+                <BotonFlecha
+                  esIncrementar={false}
+                  deshabilitado={rp1 <= 1}
+                  onClick={() => setRp1((prev) => Math.max(1, prev - 1))}
+                />
                 <div>{rp1}</div>
-                <button
-                onClick={() => {
-                    setRp1((prevTime) => prevTime + 1);
-                  }}>+1</button>
+                <BotonFlecha
+                  esIncrementar={true}
+                  deshabilitado={false}
+                  onClick={() => setRp1((prev) => prev + 1)}
+                />
               </div>
 
               <div className="perfil">
                 <div className="tituloPerfil">Perfil 2:</div>
                 Pomodoro:
-                <button
-                  onClick={() => {
-                    setPp2((prevTime) => Math.max(1, prevTime - 1));
-                  }}
-                >
-                  -1
-                </button>
+                <BotonFlecha
+                  esIncrementar={false}
+                  deshabilitado={pp2 <= 1}
+                  onClick={() => setPp2((prev) => Math.max(1, prev - 1))}
+                />
                 <div>{pp2}</div>
-                <button
-                  onClick={() => {
-                    setPp2((prevTime) => prevTime + 1);
-                  }}
-                >
-                  +1
-                </button>
+                <BotonFlecha
+                  esIncrementar={true}
+                  deshabilitado={false}
+                  onClick={() => setPp2((prev) => prev + 1)}
+                />
                 Recreo:
-                <button
-                  onClick={() => {
-                    setRp2((prevTime) => Math.max(1, prevTime - 1));
-                  }}
-                >
-                  -1
-                </button>
+                <BotonFlecha
+                  esIncrementar={false}
+                  deshabilitado={rp2 <= 1}
+                  onClick={() => setRp2((prev) => Math.max(1, prev - 1))}
+                />
                 <div>{rp2}</div>
-                <button
-                  onClick={() => {
-                    setRp2((prevTime) => prevTime + 1);
-                  }}
-                >
-                  +1
-                </button>
+                <BotonFlecha
+                  esIncrementar={true}
+                  deshabilitado={false}
+                  onClick={() => setRp2((prev) => prev + 1)}
+                />
               </div>
 
               <div className="perfil">
-                <div className="">Perfil Activo:</div>
-                <button onClick={cambiarPerfil}>{perfilActivo}</button>
-                <button onClick={guardarCambios}>Aplicar cambios</button>
+                <button className="minecraft-btn" onClick={guardarCambios}>Guardar cambios</button>
               </div>
             </div>
 
-            <div>redes</div>
+            <div>
+              redes
+            </div>
           </div>
         </opciones>
       )}
@@ -313,21 +346,25 @@ function App() {
             className="minecraft-slot item molde1"
             onMouseEnter={() => handleEnter("Sumar un minuto")}
             onMouseLeave={handleLeave}
+            onClick={() => ajustarTiempoActual(1)}
           ></div>
           <div
             className="minecraft-slot item molde2"
             onMouseEnter={() => handleEnter("Sumar cinco minutos")}
             onMouseLeave={handleLeave}
+            onClick={() => ajustarTiempoActual(5)}
           ></div>
           <div
             className="minecraft-slot item molde3"
             onMouseEnter={() => handleEnter("Restar un minuto")}
             onMouseLeave={handleLeave}
+            onClick={() => ajustarTiempoActual(-1)}
           ></div>
           <div
             className="minecraft-slot item molde4"
             onMouseEnter={() => handleEnter("Restar cinco minutos")}
             onMouseLeave={handleLeave}
+            onClick={() => ajustarTiempoActual(-5)}
           ></div>
           <div
             className="minecraft-slot item cuadro"
@@ -348,9 +385,8 @@ function App() {
             onClick={resetTime}
           ></div>
           <div
-            className={`minecraft-slot item ${
-              isRunning ? "antorcha" : "antorchaApagada"
-            }`}
+            className={`minecraft-slot item ${isRunning ? "antorcha" : "antorchaApagada"
+              }`}
             onMouseEnter={() => handleEnter("Pausar/Reproducir reloj")}
             onMouseLeave={handleLeave}
             onClick={toggleRunning}

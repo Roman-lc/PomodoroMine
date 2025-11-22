@@ -66,13 +66,15 @@ personas {
 }
 
 .player-entry {
-    display: grid;
-    /* Define 3 columnas: Cara (32px), Nombre (1fr), Ping (25px) */
-    grid-template-columns: 32px 1fr 25px;
-    align-items: center; /* Alinea verticalmente los elementos */
-    justify-items: start;
-    gap: 8px; /* Espacio entre las columnas */
-    padding: 3px 10px;
+  display: grid;
+  /* Define 3 columnas: Cara (32px), Nombre (1fr), Ping (25px) */
+  grid-template-columns: 32px 1fr 25px;
+  align-items: center;
+  /* Alinea verticalmente los elementos */
+  justify-items: start;
+  gap: 8px;
+  /* Espacio entre las columnas */
+  padding: 3px 10px;
 }
 
 .player-entry:hover {
@@ -80,17 +82,21 @@ personas {
 }
 
 .player-ping {
-    width: 100%;
-    height: auto /* Mantener proporción */
+  width: 100%;
+  height: auto
+    /* Mantener proporción */
 }
 
 /* El nombre es la clave: 
    El '1fr' en el grid asegura que ocupe todo el espacio sobrante. */
 .player-name {
-    /* No necesita más estilos, el grid se encarga del tamaño */
-    white-space: nowrap; /* Evita que el nombre se rompa si cabe */
-    overflow: hidden; /* Oculta si el nombre es demasiado largo */
-    text-overflow: ellipsis; /* Opcional: añade puntos suspensivos */
+  /* No necesita más estilos, el grid se encarga del tamaño */
+  white-space: nowrap;
+  /* Evita que el nombre se rompa si cabe */
+  overflow: hidden;
+  /* Oculta si el nombre es demasiado largo */
+  text-overflow: ellipsis;
+  /* Opcional: añade puntos suspensivos */
 }
 
 
@@ -184,8 +190,8 @@ menu {
 
 /* ITEMS IMAGES*/
 .item {
-  background-size: cover; 
-  background-repeat: no-repeat; 
+  background-size: cover;
+  background-repeat: no-repeat;
   background-position: center center;
 }
 
@@ -243,8 +249,10 @@ opciones {
   width: 700px;
   height: 350px;
   position: absolute;
-  top: 50%; /* Mueve el borde superior al 50% de la altura de la pantalla */
-  left: 50%; /* Mueve el borde izquierdo al 50% del ancho de la pantalla */
+  top: 50%;
+  /* Mueve el borde superior al 50% de la altura de la pantalla */
+  left: 50%;
+  /* Mueve el borde izquierdo al 50% del ancho de la pantalla */
   transform: translate(-50%, -50%);
   z-index: 100;
   max-width: 1280px;
@@ -254,6 +262,36 @@ opciones {
   color: #000;
   display: grid;
   grid-template-rows: 1fr 4fr 1fr;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+opciones button {
+  font-family: "MinecrafterFont", monospace;
+  background-color: #7d7d7d;
+  border: 2px solid #ffffff;
+  border-bottom-color: #373737;
+  border-right-color: #373737;
+  color: white;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  text-shadow: 2px 2px 0px #3f3f3f;
+  box-shadow: inset 2px 2px 0px rgba(255, 255, 255, 0.2), 2px 2px 0px #000000;
+  transition: transform 0.1s;
+}
+
+opciones button:active {
+  transform: translate(2px, 2px);
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.5);
+  border-top-color: #373737;
+  border-left-color: #373737;
+  border-bottom-color: #ffffff;
+  border-right-color: #ffffff;
+}
+
+opciones button:hover {
+  background-color: #8b8b8b;
 }
 
 #botonCierre {
@@ -261,17 +299,23 @@ opciones {
   flex-direction: row-reverse;
   align-items: center;
   margin-right: 20px;
-
 }
 
+.tituloPerfil {
+  font-size: 1.2em;
+  margin-bottom: 5px;
+  text-shadow: 2px 2px 0px #7d7d7d;
+}
 
 .perfil {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-.tituloPerfil {
-  margin-right: 50px;
+.flecha-down {
+  transform: rotate(180deg);
 }
