@@ -197,7 +197,11 @@ function App() {
     setMusic(!music);
   };
 
-  const [volumen, setVolumen] = useState(50);
+  const [volumen, setVolumen] = useState(() => obtenerGuardado("volumen", 1));
+
+  useEffect(() => {
+    localStorage.setItem("volumen", JSON.stringify(volumen));
+  }, [volumen]);
   
 
   //Esto es del item cuadro
