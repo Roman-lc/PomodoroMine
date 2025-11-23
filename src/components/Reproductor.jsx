@@ -1,9 +1,17 @@
 import React, { useRef, useEffect } from 'react';
 import cancion from '../assets/Audio/lofi.mp3';
 
-const Reproductor = ({reproducir}) => {
+const Reproductor = ({reproducir, volumen}) => {
 
     const audioRef = useRef(null);
+
+    useEffect(() => {
+    if (audioRef.current) {
+      // Convertimos de 0-100 a 0.0-1.0
+      const volumenDecimal = volumen / 100; 
+      audioRef.current.volume = volumenDecimal;
+    }
+  }, [volumen]);
 
     useEffect(() => {
     // Esta lógica se ejecuta cada vez que cambia la variable 'reproducir'

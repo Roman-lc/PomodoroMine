@@ -5,13 +5,18 @@ import Reloj from "./components/Reloj";
 import XpTime from "./components/XpTime";
 import Reproductor from "./components/Reproductor";
 
+import flechaActiva from "./assets/FlechaActiva.png";
+import flechaHolder from "./assets/FlechaHolder.png";
+import flechaNoActiva from "./assets/FlechaNoActiva.png";
+import MinecraftSlider from "./components/MinecraftSlider";
+
 const BotonFlecha = ({ onClick, esIncrementar, deshabilitado }) => {
   const [hover, setHover] = useState(false);
 
   const getSrc = () => {
-    if (deshabilitado) return "/src/assets/FlechaNoActiva.png";
-    if (hover) return "/src/assets/FlechaHolder.png";
-    return "/src/assets/FlechaActiva.png";
+    if (deshabilitado) return flechaNoActiva;
+    if (hover) return flechaHolder;
+    return flechaActiva;
   };
 
   const getRotation = () => {
@@ -191,6 +196,8 @@ function App() {
   const alterarMusica = () => {
     setMusic(!music);
   };
+
+  const [volumen, setVolumen] = useState(50);
   
 
   //Esto es del item cuadro
@@ -239,7 +246,7 @@ function App() {
 
   return (
     <>
-      <Reproductor reproducir={music}></Reproductor>
+      <Reproductor reproducir={music} volumen={volumen}></Reproductor>
       {estaAbierto && (
         <opciones>
           <div id="botonCierre">
@@ -248,8 +255,6 @@ function App() {
 
           <div>
             <div>Tiempos:</div>
-            <div>Tiempo Pomodoro: {tiempoPodoro}</div>
-            <div>Tiempo recreo: {tiempoRecreo}</div>
 
             <div>
               <div className="perfil">
@@ -314,7 +319,7 @@ function App() {
             </div>
 
             <div>
-              redes
+              <MinecraftSlider value={volumen} onChange={(nuevoValor) => setVolumen(nuevoValor)}></MinecraftSlider>
             </div>
           </div>
         </opciones>
