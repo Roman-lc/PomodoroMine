@@ -250,6 +250,11 @@ function App() {
 
   return (
     <>
+      <div className="rotate-warning">
+        <div className="phone-icon">📱</div>
+        <p>Por favor, gira tu dispositivo para una mejor experiencia.</p>
+      </div>
+
       <Reproductor reproducir={music} volumen={volumen}></Reproductor>
       {estaAbierto && (
         <opciones>

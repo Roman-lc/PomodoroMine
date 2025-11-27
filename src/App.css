@@ -319,3 +319,48 @@ opciones button:hover {
 .flecha-down {
   transform: rotate(180deg);
 }
+
+
+
+/* Parche para telefonos en vertical */
+
+/* Por defecto ocultamos el aviso */
+.rotate-warning {
+  display: none;
+}
+
+/* Solo si la pantalla es VERTICAL (Portrait) */
+@media screen and (orientation: portrait) {
+  /* Ocultamos todo el contenido de la app */
+  .app-container > *:not(.rotate-warning) {
+    display: none;
+  }
+
+  /* Mostramos el aviso ocupando toda la pantalla */
+  .rotate-warning {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #333;
+    color: white;
+    z-index: 9999;
+  }
+  
+  .phone-icon {
+    font-size: 3rem;
+    animation: rotate-animation 2s infinite ease-in-out;
+  }
+}
+
+/* Animación sugerente */
+@keyframes rotate-animation {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
